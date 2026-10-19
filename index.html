@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Conceito de uma bola de futebol inteligente com sensor para apoiar decisões de arbitragem.">
+  <title>SmartBall — A bola que ajuda a decidir</title>
+  <style>
+    :root {
+      --bg: #07130f;
+      --panel: #10231b;
+      --panel-2: #142c22;
+      --green: #b8ff54;
+      --mint: #d9f5c4;
+      --text: #f4f7f1;
+      --muted: #a8b8ad;
+      --line: rgba(217,245,196,.15);
+      --orange: #ffb65c;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0; background: var(--bg); color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.6;
+    }
+    a { color: inherit; text-decoration: none; }
+    .wrap { width: min(1120px, calc(100% - 40px)); margin: auto; }
+    header {
+      display:flex; align-items:center; justify-content:space-between; gap:20px;
+      padding: 24px 0; border-bottom:1px solid var(--line);
+    }
+    .brand { display:flex; align-items:center; gap:11px; font-weight:850; letter-spacing:-.04em; font-size:1.25rem; }
+    .brand-mark { display:grid; place-items:center; width:36px; height:36px; border-radius:12px; color:#07130f; background:var(--green); }
+    nav { display:flex; gap:26px; color:var(--muted); font-size:.92rem; }
+    nav a:hover, footer a:hover { color:var(--green); }
+    .hero { display:grid; grid-template-columns:1.1fr .9fr; align-items:center; gap:44px; padding:74px 0 86px; }
+    .eyebrow { display:inline-flex; gap:8px; align-items:center; color:var(--green); text-transform:uppercase; font-size:.75rem; font-weight:800; letter-spacing:.16em; }
+    .dot { width:7px; height:7px; border-radius:50%; background:var(--green); box-shadow:0 0 16px var(--green); }
+    h1 { font-size:clamp(2.8rem, 6vw, 5.4rem); line-height:.98; letter-spacing:-.065em; margin:20px 0 24px; }
+    h1 span { color:var(--green); }
+    .lead { color:var(--muted); font-size:1.12rem; max-width:590px; }
+    .actions { display:flex; flex-wrap:wrap; gap:12px; margin-top:30px; }
+    .btn { display:inline-flex; align-items:center; justify-content:center; padding:13px 19px; border-radius:12px; font-weight:800; border:1px solid var(--line); transition:transform .2s, background .2s; }
+    .btn:hover { transform:translateY(-2px); }
+    .btn-primary { color:#08130b; background:var(--green); border-color:var(--green); }
+    .btn-secondary { color:var(--text); background:transparent; }
+    .visual { position:relative; min-height:390px; display:grid; place-items:center; overflow:hidden; border:1px solid var(--line); border-radius:28px; background:radial-gradient(circle at 50% 45%, #23412c 0, #11281d 40%, #0b1b14 75%); }
+    .visual::before, .visual::after { content:""; position:absolute; border:1px solid rgba(184,255,84,.18); border-radius:50%; width:300px; height:300px; }
+    .visual::after { width:390px; height:390px; }
+    .ball { width:min(70%, 270px); aspect-ratio:1; z-index:1; filter:drop-shadow(0 24px 25px rgba(0,0,0,.4)); animation:float 5s ease-in-out infinite; }
+    @keyframes float { 0%,100% { transform:translateY(0) rotate(-5deg); } 50% { transform:translateY(-10px) rotate(4deg); } }
+    .sensor-tag { position:absolute; z-index:2; right:8%; bottom:13%; background:rgba(7,19,15,.85); border:1px solid rgba(184,255,84,.4); border-radius:14px; padding:12px 15px; font-size:.82rem; box-shadow:0 12px 30px #0004; }
+    .sensor-tag strong { display:block; color:var(--green); font-size:.95rem; }
+    section { padding:64px 0; }
+    .section-head { max-width:660px; margin-bottom:30px; }
+    .section-head h2 { font-size:clamp(2rem,4vw,3rem); letter-spacing:-.045em; line-height:1.08; margin:12px 0; }
+    .section-head p { color:var(--muted); margin:0; }
+    .grid-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+    .card { background:var(--panel); border:1px solid var(--line); border-radius:20px; padding:24px; }
+    .card-icon { display:grid; place-items:center; width:44px; height:44px; border-radius:14px; background:rgba(184,255,84,.12); color:var(--green); font-size:1.3rem; margin-bottom:18px; }
+    .card h3 { margin:0 0 8px; font-size:1.1rem; }
+    .card p { color:var(--muted); margin:0; font-size:.95rem; }
+    .flow { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; counter-reset:step; }
+    .step { background:var(--panel-2); border-radius:18px; padding:22px; border:1px solid var(--line); }
+    .step-num { color:var(--green); font-weight:900; letter-spacing:.1em; font-size:.8rem; }
+    .step h3 { margin:8px 0; }
+    .step p { color:var(--muted); margin:0; font-size:.94rem; }
+    .demo-layout { display:grid; grid-template-columns:.8fr 1.2fr; gap:24px; align-items:stretch; }
+    .demo-intro { padding:30px 0; }
+    .demo-intro h2 { font-size:clamp(2rem,4vw,3rem); line-height:1.05; letter-spacing:-.045em; margin:12px 0; }
+    .demo-intro p { color:var(--muted); }
+    .demo-panel { background:var(--panel); border:1px solid var(--line); border-radius:24px; padding:25px; }
+    .demo-panel label { display:block; color:var(--muted); font-size:.85rem; margin-bottom:9px; }
+    select { width:100%; padding:13px 14px; color:var(--text); background:#091810; border:1px solid var(--line); border-radius:12px; font:inherit; margin-bottom:16px; }
+    .detect-btn { width:100%; cursor:pointer; font:inherit; }
+    .result { margin-top:18px; border:1px solid rgba(184,255,84,.25); border-radius:16px; background:#0b1c13; padding:18px; min-height:116px; }
+    .result small { color:var(--green); text-transform:uppercase; letter-spacing:.12em; font-weight:800; }
+    .result h3 { margin:5px 0; font-size:1.2rem; }
+    .result p { margin:0; color:var(--muted); font-size:.92rem; }
+    .note { color:var(--muted); font-size:.82rem; margin-top:14px; }
+    .cta { padding:38px; display:flex; align-items:center; justify-content:space-between; gap:25px; border:1px solid rgba(184,255,84,.25); border-radius:24px; background:linear-gradient(120deg,#142d20,#0d1e15); }
+    .cta h2 { margin:0 0 8px; font-size:clamp(1.6rem,3vw,2.4rem); letter-spacing:-.04em; }
+    .cta p { margin:0; color:var(--muted); max-width:650px; }
+    footer { border-top:1px solid var(--line); color:var(--muted); padding:24px 0; font-size:.86rem; }
+    .footer-inner { display:flex; justify-content:space-between; gap:20px; flex-wrap:wrap; }
+    @media (max-width:760px) {
+      nav { display:none; }
+      .hero, .demo-layout { grid-template-columns:1fr; }
+      .hero { padding:52px 0 60px; gap:30px; }
+      .visual { min-height:320px; }
+      .grid-3, .flow { grid-template-columns:1fr; }
+      section { padding:48px 0; }
+      .cta { align-items:flex-start; flex-direction:column; padding:26px; }
+    }
+    @media (prefers-reduced-motion:reduce) { *,*::before,*::after { animation:none!important; scroll-behavior:auto!important; transition:none!important; } }
+  </style>
+</head>
+<body>
+  <header class="wrap">
+    <a class="brand" href="#inicio" aria-label="SmartBall, início"><span class="brand-mark">S</span> SmartBall</a>
+    <nav aria-label="Navegação principal">
+      <a href="#tecnologia">Tecnologia</a>
+      <a href="#decisoes">Decisões</a>
+      <a href="#demo">Demonstração</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero wrap" id="inicio">
+      <div>
+        <div class="eyebrow"><span class="dot"></span> Tecnologia ao serviço do futebol</div>
+        <h1>Uma bola.<br>Decisões <span>mais claras.</span></h1>
+        <p class="lead">Um sensor integrado na bola pode ajudar a equipa de arbitragem a perceber quando ela ultrapassa totalmente as linhas do campo — e a apoiar decisões em cantos, lançamentos e golos.</p>
+        <div class="actions">
+          <a class="btn btn-primary" href="#tecnologia">Descobrir a ideia ↘</a>
+          <a class="btn btn-secondary" href="#demo">Experimentar demonstração</a>
+        </div>
+      </div>
+      <div class="visual" aria-label="Ilustração de uma bola de futebol com sensor">
+        <svg class="ball" viewBox="0 0 300 300" role="img" aria-label="Bola de futebol estilizada com um sensor verde no centro">
+          <defs>
+            <radialGradient id="leather" cx="35%" cy="25%" r="75%">
+              <stop offset="0" stop-color="#ffffff"/>
+              <stop offset="1" stop-color="#bfc8bd"/>
+            </radialGradient>
+            <clipPath id="ballClip"><circle cx="150" cy="150" r="126"/></clipPath>
+          </defs>
+          <circle cx="150" cy="150" r="128" fill="#07130f" opacity=".45"/>
+          <g clip-path="url(#ballClip)" stroke="#18221b" stroke-width="4" stroke-linejoin="round">
+            <circle cx="150" cy="150" r="126" fill="url(#leather)"/>
+            <polygon points="150,93 184,117 171,157 129,157 116,117" fill="#17231b"/>
+            <polygon points="150,24 180,38 184,75 150,93 116,75 120,38" fill="#f8faf6"/>
+            <polygon points="184,117 220,104 249,128 239,166 205,179 171,157" fill="#f8faf6"/>
+            <polygon points="129,157 116,190 81,200 56,171 61,134 94,116 116,117" fill="#f8faf6"/>
+            <polygon points="129,157 171,157 190,192 169,224 130,224 108,191" fill="#17231b"/>
+            <polygon points="150,93 184,75 211,81 220,104 184,117" fill="#e5eae3"/>
+            <polygon points="94,116 61,134 47,111 68,86 116,75 116,117" fill="#17231b"/>
+            <polygon points="205,179 239,166 253,194 231,220 190,222 190,192" fill="#17231b"/>
+            <polygon points="81,200 108,191 130,224 112,249 76,238 56,207" fill="#17231b"/>
+            <path d="M150 24 L150 93 M184 117 L205 179 M129 157 L108 191 M171 157 L190 192" fill="none"/>
+          </g>
+          <circle cx="150" cy="150" r="17" fill="#b8ff54" stroke="#07130f" stroke-width="5"/>
+          <circle cx="150" cy="150" r="5" fill="#07130f"/>
+          <circle cx="150" cy="150" r="25" fill="none" stroke="#b8ff54" stroke-width="1.5" opacity=".7"/>
+        </svg>
+        <div class="sensor-tag"><strong>Sensor integrado</strong>Posição · movimento · impacto</div>
+      </div>
+    </section>
+
+    <section id="tecnologia">
+      <div class="wrap">
+        <div class="section-head">
+          <div class="eyebrow">01 / A tecnologia</div>
+          <h2>Informação precisa, em tempo real.</h2>
+          <p>O conceito combina sensores na bola com sistemas de posicionamento e comunicação com a equipa de arbitragem. A decisão final continua a seguir as regras oficiais.</p>
+        </div>
+        <div class="grid-3">
+          <article class="card"><div class="card-icon">⌖</div><h3>Posição da bola</h3><p>Um sistema de localização acompanha a posição da bola em relação às linhas do campo.</p></article>
+          <article class="card"><div class="card-icon">◉</div><h3>Movimento e contacto</h3><p>Dados de movimento podem ajudar a identificar toques e a reconstruir a sequência de uma jogada.</p></article>
+          <article class="card"><div class="card-icon">↗</div><h3>Alerta para o árbitro</h3><p>Quando os dados indicam uma situação relevante, o sistema pode enviar um aviso à equipa de arbitragem.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section id="decisoes">
+      <div class="wrap">
+        <div class="section-head">
+          <div class="eyebrow">02 / Em campo</div>
+          <h2>Três situações. Mais confiança.</h2>
+          <p>O sensor seria uma ferramenta de apoio, trabalhando em conjunto com os árbitros assistentes e, quando aplicável, com a tecnologia de linha de golo e o VAR.</p>
+        </div>
+        <div class="flow">
+          <article class="step"><div class="step-num">SITUAÇÃO 01</div><h3>Canto</h3><p>Se a bola ultrapassar totalmente a linha de baliza, tocada por último por um defensor e sem golo, os dados podem ajudar a confirmar se é pontapé de canto.</p></article>
+          <article class="step"><div class="step-num">SITUAÇÃO 02</div><h3>Lançamento lateral</h3><p>O sistema pode ajudar a detetar quando a bola sai totalmente pela linha lateral e apoiar a reposição de jogo no local correto.</p></article>
+          <article class="step"><div class="step-num">SITUAÇÃO 03</div><h3>Golo ou não golo</h3><p>Com posicionamento suficientemente preciso, pode apoiar a confirmação de que a bola atravessou totalmente a linha de baliza entre os postes e por baixo da trave.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section id="demo">
+      <div class="wrap demo-layout">
+        <div class="demo-intro">
+          <div class="eyebrow">03 / Demonstração interativa</div>
+          <h2>Como poderia funcionar?</h2>
+          <p>Escolhe uma situação para veres um exemplo de alerta que o sistema poderia apresentar ao árbitro. Esta demonstração é ilustrativa e não está ligada a uma bola ou a sensores reais.</p>
+        </div>
+        <div class="demo-panel">
+          <label for="scenario">Situação em análise</label>
+          <select id="scenario">
+            <option value="corner">Bola saiu pela linha de baliza</option>
+            <option value="throw">Bola saiu pela linha lateral</option>
+            <option value="goal">Bola cruzou a linha de baliza</option>
+            <option value="play">Bola continua dentro do campo</option>
+          </select>
+          <button class="btn btn-primary detect-btn" id="analyze">Analisar situação ↗</button>
+          <div class="result" id="result" aria-live="polite">
+            <small>Alerta simulado</small>
+            <h3>Possível pontapé de canto</h3>
+            <p>A bola parece ter ultrapassado totalmente a linha de baliza. Confirmar último toque e regras aplicáveis.</p>
+          </div>
+          <p class="note">Nota: exemplo conceptual. Um sistema real precisaria de testes, calibração e validação pelas entidades competentes.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="wrap">
+      <div class="cta">
+        <div><h2>O futuro da arbitragem é mais informado.</h2><p>Uma bola inteligente não substitui o árbitro: oferece-lhe dados adicionais para tomar decisões mais consistentes e transparentes.</p></div>
+        <a class="btn btn-primary" href="#inicio">Voltar ao início ↑</a>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap footer-inner"><span>© 2026 SmartBall — Conceito de inovação desportiva</span><span>Projeto conceptual · Não representa um produto certificado</span></div>
+  </footer>
+
+  <script>
+    const scenarios = {
+      corner: {
+        title: "Possível pontapé de canto",
+        text: "A bola parece ter ultrapassado totalmente a linha de baliza. Confirmar último toque e regras aplicáveis."
+      },
+      throw: {
+        title: "Possível lançamento lateral",
+        text: "A bola parece ter saído totalmente pela linha lateral. O sistema pode indicar o local aproximado da saída."
+      },
+      goal: {
+        title: "Verificação de golo",
+        text: "Os dados sugerem que a bola cruzou a linha de baliza. Confirmar a validação do sistema e as condições regulamentares."
+      },
+      play: {
+        title: "Bola aparentemente em jogo",
+        text: "Os dados não indicam que a bola tenha ultrapassado totalmente uma linha. A jogada pode continuar."
+      }
+    };
+    const select = document.getElementById("scenario");
+    const result = document.getElementById("result");
+    document.getElementById("analyze").addEventListener("click", () => {
+      const item = scenarios[select.value];
+      result.innerHTML = `<small>Alerta simulado</small><h3>${item.title}</h3><p>${item.text}</p>`;
+    });
+  </script>
+</body>
+</html>
